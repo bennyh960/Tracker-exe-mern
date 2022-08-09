@@ -1,17 +1,45 @@
 import React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import usersRouter from "../../../api/users.api";
 import "./createExercise.css";
+import Spiner1 from "../../spiners/spiner1/spiner";
+import exercisesRouter from "../../../api/exercises.api";
 
 export default function CreateExercise() {
-  const [users, setUsers] = useState(["x", "y", "z"]);
+  const [users, setUsers] = useState([]);
+  const [spinerOn, setSpiner] = useState(false);
   const [excericse, setExcercise] = useState({ userName: "", description: "", duration: 0, date: new Date() });
+  let navigate = useNavigate();
 
-  const onSubmit = (e) => {
+  useEffect(() => {
+    const getUsers = async () => {
+      const { data } = await usersRouter.get("/");
+      // console.log(data);
+      setUsers(data.map((user) => user.userName));
+    };
+    getUsers();
+  }, []);
+
+  const onSubmit = async (e) => {
     e.preventDefault();
     console.log(excericse);
-    // window.location = "/";
+    for (const key in excericse) {
+      if (!excericse[key]) return;
+    }
+
+    setSpiner(true);
+    try {
+      await exercisesRouter.post("/add", excericse);
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
+    } catch (error) {
+      setSpiner(false);
+    }
   };
 
   const onChange = ({ target: { value, id } }) => {
@@ -80,7 +108,8 @@ export default function CreateExercise() {
           />
         </div>
         <div className="form-group">
-          <input type="submit" value={"Create Excersie Log"} className="btn btn-primary" />
+          {/* <input type="submit" value={"Create Excersie Log"} className="btn btn-primary my-btn" /> */}
+          <button className="btn btn-primary my-btn">{spinerOn ? <Spiner1 /> : "Create Excersie Log"}</button>
         </div>
       </form>
     </div>
