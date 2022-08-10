@@ -30,7 +30,7 @@ router.route("/:id").get(async (req, res) => {
   }
 });
 
-router.route("/:id").delete(async (req, res) => {
+router.route("/delete/:id").delete(async (req, res) => {
   try {
     const exercise = await Exercise.findByIdAndDelete(req.params.id);
     res.send(exercise ? "deleted" : "exercise not found");
